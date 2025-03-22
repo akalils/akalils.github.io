@@ -75,7 +75,7 @@ ga_domain: huangxuan.me
 # Sidebar settings
 sidebar: true # whether or not using Sidebar.
 sidebar-about-description: "一定有更好的解法 <br> "
-sidebar-avatar: https://github.com/IMG_2323.jpeg # use absolute URL, seeing it's used in both `/` and `/about/`
+sidebar-avatar: https://github.com/akalils/akalils.github.io/blob/5fb134fa5fe6390c08ac0d39df4f264e1fdd5ae3/img/IMG_2323.jpeg # use absolute URL, seeing it's used in both `/` and `/about/`
 
 # Featured Tags
 featured-tags: true # whether or not using Feature-Tags
