@@ -50,7 +50,7 @@ default:
 ```
 
 ## 核心数据结构
-![[img/FlowChart/1_1.jpeg]]
+![](img/FlowChart/1_1.jpeg)
 ### hchan
 channel 数据结构
 ```go
