@@ -3,10 +3,10 @@ title: Lils Blog
 SEOTitle: 黎圣的博客 | Lils Blog
 header-img: img/home-bg.jpg
 email: lisheng-_-@outlook.com
-description: "这里是 @lils 的个人博客，与你一起发现更大的世界 | 要做一个有 swag 的程序员"
+description: "这里是 @lils 的个人博客，与你一起发现更大的世界 | 一定有更好的解法 "
 keyword: "黎圣, Lils黎圣, Lils, @Lils, 黎圣的博客, Lils Blog, 博客, 个人网站, 互联网, GoLang, 后端, 设计, C/C++"
-url: "https://huangxuan.me" # your host, for absolute URL
-baseurl: "" # for example, '/blog' if your blog hosted on 'host/blog'
+url: "https://github.com/akalils" # your host, for absolute URL
+baseurl: "https://github.com/akalils" # for example, '/blog' if your blog hosted on 'host/blog'
 
 # Publish posts or collection documents with a future date.
 future: true
@@ -66,11 +66,11 @@ netease_comment: false
 
 # Analytics settings
 # Baidu Analytics
-# ba_track_id: [your track id]
+ba_track_id: ab3d0bb58694552e28d8901ee4658ebc
 
 # Google Analytics
-ga_track_id: "UA-49627206-1" # Format: UA-xxxxxx-xx
-ga_domain: huangxuan.me
+# ga_track_id: "UA-49627206-1" # Format: UA-xxxxxx-xx
+# ga_domain: huangxuan.me
 
 # Sidebar settings
 sidebar: true # whether or not using Sidebar.
