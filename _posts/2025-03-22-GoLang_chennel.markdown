@@ -48,9 +48,9 @@ default:
 	// 放行
 }
 ```
-## 核心数据结构
-![[img/FlowChart/640.webp]]
 
+## 核心数据结构
+![[img/FlowChart/1_1.jpeg]]
 ### hchan
 channel 数据结构
 ```go
@@ -96,7 +96,7 @@ type sudog struct {
 }
 ```
 ## 构造器函数
-![[img/FlowChart/640-2.webp]]
+![[img/FlowChart/1_6.jpeg]]
 ```go
 func makechan(t *chantype, size int) *hchan {
     elem := t.elem
@@ -163,7 +163,7 @@ func chansend(c *hchan, ep unsafe.Pointer, block bool, callerpc uintptr) bool {
 ```
 
 ### 写时存在阻塞读协程
-![[img/FlowChart/640 1.webp]]
+![[img/FlowChart/1_2.jpeg]]
 ```go
 func chansend(c *hchan, ep unsafe.Pointer, block bool, callerpc uintptr) bool {
     // ...
@@ -186,7 +186,7 @@ func chansend(c *hchan, ep unsafe.Pointer, block bool, callerpc uintptr) bool {
 ```
 
 ### 写时无阻塞读协程但环形缓冲区仍有空间
-![[img/FlowChart/640-2 1.webp]]
+![[img/FlowChart/1_3.jpeg]]
 ```go
 func chansend(c *hchan, ep unsafe.Pointer, block bool, callerpc uintptr) bool {
     // ...
@@ -211,7 +211,7 @@ func chansend(c *hchan, ep unsafe.Pointer, block bool, callerpc uintptr) bool {
 }
 ```
 ### 写时无阻塞读协程且环形缓冲区无空间
-![[img/FlowChart/640-3.webp]]
+![[img/FlowChart/1_8.jpeg]]
 ```go
 func chansend(c *hchan, ep unsafe.Pointer, block bool, callerpc uintptr) bool {
     // ...
@@ -240,7 +240,7 @@ func chansend(c *hchan, ep unsafe.Pointer, block bool, callerpc uintptr) bool {
 ```
 
 ### 写流程整体串联
-![[img/FlowChart/640-4.webp]]
+![[img/FlowChart/1_10.jpeg]]
 ## 读流程
 ### 4.1读空 channel
 如果尝试读的channel是一个空channel
@@ -274,7 +274,7 @@ func chanrecv(c *hchan, ep unsafe.Pointer, block bool) (selected, received bool)
     // ...
 ```
 ### 4.3读时有阻塞的写协程（缓冲区已满）
-![[img/FlowChart/640-5.webp]]
+![[img/FlowChart/1_11.jpeg]]
 ```go
 func chanrecv(c *hchan, ep unsafe.Pointer, block bool) (selected, received bool) {
    
@@ -292,7 +292,7 @@ func chanrecv(c *hchan, ep unsafe.Pointer, block bool) (selected, received bool)
 ```
 
 ### 4.4读时无阻塞写协程且缓冲区有元素
-![[img/FlowChart/640 2.webp]]
+![[img/FlowChart/1_3.jpeg]]
 ```go
 func chanrecv(c *hchan, ep unsafe.Pointer, block bool) (selected, received bool) {
     // ...
@@ -317,7 +317,7 @@ func chanrecv(c *hchan, ep unsafe.Pointer, block bool) (selected, received bool)
 ```
 
 ### 4.5读时无阻塞写协程且缓冲区无元素
-![[img/FlowChart/640-2 2.webp]]
+![[img/FlowChart/1_5.jpeg]]
 ```go
 func chanrecv(c *hchan, ep unsafe.Pointer, block bool) (selected, received bool) {
    // ...
@@ -349,7 +349,7 @@ func chanrecv(c *hchan, ep unsafe.Pointer, block bool) (selected, received bool)
 
 我理解的时候自己动手画了一个流程图，下面也附上原作者的流程图。
 ![[img/FlowChart/IMG_4C1C997D1152-1.jpeg]]
-![[img/FlowChart/640-3 1.webp]]
+![[img/FlowChart/1_7.jpeg]]
 ## 阻塞与非阻塞模式
 ### 非阻塞模式逻辑区别
 
@@ -375,7 +375,7 @@ if val, ok := <- ch; ok{
 
 通过上述代码这种方式就能判断0值的来源。
 ## 关闭
-![[img/FlowChart/640-4 1.webp]]
+![[img/FlowChart/1_9.jpeg]]
 ```go
 func closechan(c *hchan) {
 	// 不能关闭一个未初始化的chennel否则会panic
@@ -441,5 +441,5 @@ func closechan(c *hchan) {
 ## 鸣谢与参考
 本文在整理过程中参考了以下资料
 特此致谢： 
-1. **小徐先生** - [Golang Channel 实现原理》](https://mp.weixin.qq.com/s/QgNndPgN1kqxWh-ijSofkw)
+1. **小徐先生** - [Golang Channel 实现原理](https://mp.weixin.qq.com/s/QgNndPgN1kqxWh-ijSofkw)
 2. Go 官方文档
