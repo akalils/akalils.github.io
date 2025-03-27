@@ -21,7 +21,7 @@ tags:
 2. **上下文层**：通过 `gin.Context` 封装请求 / 响应操作，替代原生的 `http.ResponseWriter` 和 `*http.Request`。
 3. **中间件层**：通过 `HandlersChain` 实现**洋葱模型**，而原生需手动链式调用。
 两者的交互边界如下图：
- ![[截屏2025-03-26 20.15.59.png]]
+ ![](img/FlowChart/20250327/截屏2025-03-26 20.15.59.png)
  图中以背景颜色的不同可以分为三个模块。
  1. 以**蓝色**为底的这部分是 `Gin` 框架增强的内容。
  2. 以**红色**为底的这部分也是从属于 `Gin` 框架的内容，为了支持 `Gin` 框架使用的数据结构。
@@ -64,10 +64,10 @@ func main () {
 
 当我们把服务端运行起来时再用一个终端去扮演客户端的角色，输入`curl -X POST 127.0.0.1:8080/ping`我们就能看到客户端对应的输出了一个`pong`，是不是老神奇了！再去看服务端就能看到我们在代码中写的中间件的输出。
 
-![[截屏2025-03-26 20.43.25.png]]
+![](img/FlowChart/20250327/截屏2025-03-26 20.43.25.png)
 # 2 注册 `handler` 流程
 ## 2.1 核心数据结构
-![[截屏2025-03-26 20.45.15.png]]
+![](img/FlowChart/20250327/截屏2025-03-26 20.45.15.png)
 1. `sync.Pool`：用来帮助我们去复用对应的一系列的`gin.Context`。我们前面说了每一笔 `HTTP` 请求到来之后我们都会为这笔请求去分配`gin.Context`来供这笔请求去使用。那作为一个服务端来说他接受到的请求可能是有很高的并发量，`gin.Context`在这过程中可能会被不断的创造和销毁。所以我们不妨采用一个**回收站**的思想，我们每一次去创造 `gin.Context` 时不会去立刻去内存构造出一个新的实例，而是先看一眼在这个回收站当中是不是还残存着对应的之前被回收的实例，如果有的话我们优先复用（类似于缓存）。同时这个回收站还有一个自动清理垃圾的能力，当两轮GC之后对应 `gin.Context` 里面一系列的实例都还没有被使用到它会自动清理垃圾把这部分的内存做一个回收。（具体内容会在第五章当中详细探讨）
 2. `RouterGroup` 路由组：指的是后续我们针对每一笔具体的请求都会有一个**路径处理函数**，这个路由组当中的所有配置会被这个组当中所有成员也就是这一系列的请求路径对应的这个 `HandlersChain` 所共同使用，包括 `basePath` ，就是每一个 `RouterGroup` 可以有一个公共的前缀路径，后续在这个 `Group` 下面的具体的每一个子路径会去基于这个 `basePath` 作为前缀，拼接上自身的相对路径来生成一个对应的**绝对路径**。 `RouterGroup` 当中可以完成一个当前这个组所公共的**中间件的注入**，比如说我们定义了一个用户模块，这个模块可能会有一些公共的脱落业务逻辑之外的一些逻辑需要放在同一个切面当中执行，比如去校验用户是否登录了，如果登录的话需要把更多的用户信息获取到注入到 `gin.Context` 中供后续的请求链路使用。
 3. `trees methodTrees` 路由树：根据 `http` 各种请求方法一共分成**九棵树**，每一棵树会根据我们的请求路径基于压缩前缀树的一套规则来实现一个父子节点的拆分和合并，最终把对应于每一个路径的 `HandlerChain` 所挂载在这个路径所对应的节点下面。后续当有对应请求到来之后先根据这个请求对应的 `HTTPMethod` 映射到具体那棵树，再根据他的请求路径去树当中寻找到对应到的节点再去获取到他对应的 `HandlersChain` 做逻辑的处理。
@@ -231,7 +231,7 @@ func (group *RouterGroup) Use(middleware ...HandlerFunc) IRoutes {
 ```
 
 ### 3. 注册handler
-![[截屏2025-03-26 21.36.31.png]]
+![](img/FlowChart/20250327/截屏2025-03-26 21.36.31.png))
 以 `http post` 为例，注册 `handler` 方法调用顺序为 `RouterGroup.POST`-> `RouterGroup.handle`，接下来会完成三个步骤：
 1. **拼接出待注册方法的完整路径 `absolutePath`**：首先看当前这个路径是从属于哪一个具体的路由组，获取到这个路由组当中的 `basePath` 作为路由组的公共前缀，拼接上自身的一个相对路径最终能够得到一个绝对路径 `absolutePath` 。
 2. **拼接出代注册方法的完整处理函数链 `handlers`**：获取到对应路由组当中所共有的中间件，再拼接上我们此时注册操作所注入的这部分新的 `HandlersChain` ，最终形成一个完整的 `HandlersChain` 。
@@ -333,7 +333,7 @@ func (engine *Engine) Run(addr ...string) (err error) {
 }
 ```
 顺便多提一嘴，`ListenerAndServe` 方法本身会基于主动轮询 + IO 多路复用的方式运行，因此程序在正常运行时，会始终阻塞于 `Engine.Run` 方法，不会返回.
-![[截屏2025-03-26 22.26.15.png]]
+![](img/FlowChart/20250327/截屏2025-03-26 22.26.15.png)
 
 ```go
 func (srv *Server) Serve(l net.Listener) error {
@@ -376,7 +376,7 @@ func (engine *Engine) ServeHTTP(w http.ResponseWriter, req *http.Request) {
     engine.pool.Put(c)
 }
 ```
-![[截屏2025-03-26 22.44.56.png]]
+![](img/FlowChart/20250327/截屏2025-03-26 22.44.56.png)
 `Engine.handleHTTPRequest` 方法核心步骤分为三步：
 1. 根据 `http method` 取得对应的 `methodTree`
 2. 根据 `path` 从 `methodTree` 中找到对应的 `handlers` 链
@@ -430,7 +430,7 @@ func (engine *Engine) handleHTTPRequest(c *Context) {
 - 从根节点到某一节点，路径上经过的字符串联起来，即为该节点对应的字符串    
 - 尽可能复用公共前缀，如无必要不分配新的节点
 画一个图就很好理解啦
-![[截屏2025-03-27 20.39.26.png]]
+![](img/FlowChart/20250327/截屏2025-03-27 20.39.26.png)
 ### （2）压缩前缀树
 压缩前缀树又称**基数树**或 `radix` 树，是对前缀树的改良版本，优化点主要在于空间的节省，核心策略体现在：
 - **倘若某个子节点是其父节点的唯一孩子，则与父节点进行合并**
@@ -450,10 +450,10 @@ func (engine *Engine) handleHTTPRequest(c *Context) {
 在 `Gin` 路由树中还使用一种补偿策略，在组装路由树时，会将注册路由句柄数量更多的 `child node` 摆放在 `children` 数组更靠前的位置.
 
 这是因为某个链路注册的 `handlers` 句柄数量越多，一次匹配操作所需要花费的时间就越长，且被匹配命中的概率就越大，因此应该被优先处理。
-![[截屏2025-03-27 21.07.54.png]]
+![](img/FlowChart/20250327/截屏2025-03-27 21.07.54.png)
 那我去检索一个请求路径时都会遵循从左往右以此遍历它的子节点看看是不是能够命中匹配下一段路径，因此这个子节点的位置越靠左，就可以越优先被遍历到。
 ## 4.2 核心数据结构
-![[截屏2025-03-27 21.15.07.png]]
+![](img/FlowChart/20250327/截屏2025-03-27 21.15.07.png)
 下面聊一下路由树的数据结构，对应于 9 种 http method，共有 9 棵 methodTree. 每棵 methodTree 会通过 root 指向 radix tree 的根节点.
 ```go
 type methodTree struct {
@@ -680,7 +680,7 @@ walk:
  
 # 5 Gin.Context
 ## 5.1 核心数据结构
-![[截屏2025-03-27 21.46.24.png]]
+![](img/FlowChart/20250327/截屏2025-03-27 21.46.24.png)
 gin.Context 的定位是对应于一次 http 请求，贯穿于整条 handlersChain 调用链路的上下文，其中包含了如下核心字段：
 - `Request/Writer`：`http` 请求和响应的 `reader`、`writer` 入口，用于建立和客户端之间的通信，Request可以理解为是用来读取客户端传输数据的入口，而writer则是我们当前这个服务端处理完对应的请求之后把响应的数据发送回客户端的出口。
 - `handlers`：本次 `http` 请求对应的处理函数链
@@ -712,7 +712,7 @@ type Context struct {
 ```
 
 ## 5.2 复用策略
-![[截屏2025-03-27 21.51.16.png]]
+![](img/FlowChart/20250327/截屏2025-03-27 21.51.16.png)
 `gin.Context` 作为处理 `http` 请求的通用数据结构，不可避免地会被频繁创建和销毁. 为了缓解 GC 压力，`gin` 中采用对象池 `sync.Pool` 进行 `Context` 的缓存复用，处理流程如下：
 - `http` 请求到达时，从 `pool` 中获取 `Context`，倘若池子已空，通过 `pool.New` 方法构造新的 `Context` 补上空缺
 - `http` 请求处理完成后，将 `Context` 放回 `pool` 中，用以后续复用
@@ -743,7 +743,7 @@ func (engine *Engine) allocateContext(maxParams uint16) *Context {
 ```
 
 ## 5.3 分配与回收时机
-![[截屏2025-03-27 22.03.13.png]]
+![](img/FlowChart/20250327/截屏2025-03-27 22.03.13.png)
 `gin.Context` 分配与回收的时机是在 `gin.Engine` 处理 `http` 请求的前后，位于 `Engine.ServeHTTP` 方法当中：
 - 从池中获取 `Context`
 - 重置 `Context` 的内容，使其成为一个空白的上下文
@@ -792,7 +792,7 @@ func (engine *Engine) handleHTTPRequest(c *Context) {
 }
 ```
 ### （2）`handlesChain` 遍历调用
-![[截屏2025-03-27 22.08.07.png]]
+![](img/FlowChart/20250327/截屏2025-03-27 22.08.07.png)
 推进 `handlers` 链调用进度的方法正是 `Context.Next`. 可以看到其中以 `Context.index` 为索引，通过 for 循环依次调用 `handlers` 链中的 `handler`.
 ```go
 func (c *Context) Next() {
@@ -807,7 +807,7 @@ func (c *Context) Next() {
 由于 `Context` 本身会暴露于调用链路中，因此用户可以在某个 `handler` 中通过手动调用 `Context.Next` 的方式来打断当前 `handler` 的执行流程，提前进入下一个 `handler` 的处理中.
 
 由于此时本质上是一个方法压栈调用的行为，因此在后置位 `handlers` 链全部处理完成后，最终会回到压栈前的位置，执行当前 `handler` 剩余部分的代码逻辑.
-![[截屏2025-03-27 22.19.02.png]]
+![](img/FlowChart/20250327/截屏2025-03-27 22.19.02.png)
 结合下面的代码示例来说，用户可以在某个 `handler` 中，于调用 `Context.Next` 方法的前后分别声明前处理逻辑和后处理逻辑，这里的“前”和“后”相对的是后置位的所有 `handler` 而言.
 ```go
 func myHandleFunc(c *gin.Context){
@@ -845,7 +845,7 @@ func (group *RouterGroup) combineHandlers(handlers HandlersChain) HandlersChain 
 ```
 
 ### （3）共享数据存取
-![[截屏2025-03-27 22.29.55.png]]
+![](img/FlowChart/20250327/截屏2025-03-27 22.29.55.png)
 `gin.Context` 作为 `handlers` 链的上下文，还提供对外暴露的 `Get` 和 `Set` 接口向用户提供了共享数据的存取服务，相关操作都在读写锁的保护之下，能够保证并发安全.
 ```go
 type Context struct {
