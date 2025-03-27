@@ -64,7 +64,8 @@ func main () {
 
 当我们把服务端运行起来时再用一个终端去扮演客户端的角色，输入`curl -X POST 127.0.0.1:8080/ping`我们就能看到客户端对应的输出了一个`pong`，是不是老神奇了！再去看服务端就能看到我们在代码中写的中间件的输出。
 
-![](img/FlowChart/20250327/截屏2025-03-26 20.43.25.png)
+![](https://github.com/akalils/akalils.github.io/blob/eac8c8885fd609ef32a5f556e634c7ea17a2a4f4/img/FlowChart/20250327/%E6%88%AA%E5%B1%8F2025-03-26%2020.43.25.png)
+
 # 2 注册 `handler` 流程
 ## 2.1 核心数据结构
 ![](img/FlowChart/20250327/截屏2025-03-26 20.45.15.png)
