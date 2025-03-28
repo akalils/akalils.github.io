@@ -22,7 +22,7 @@ tags:
 2. **上下文层**：通过 `gin.Context` 封装请求 / 响应操作，替代原生的 `http.ResponseWriter` 和 `*http.Request`。
 3. **中间件层**：通过 `HandlersChain` 实现**洋葱模型**，而原生需手动链式调用。
 两者的交互边界如下图：
- ![](https://github.com/akalils/akalils.github.io/blob/c330465ded2d948123eacddcc94a5910ec2bacfc/img/FlowChart/20250327/%E6%88%AA%E5%B1%8F2025-03-26-20.15.59.jpg)
+ ![](https://raw.githubusercontent.com/akalils/akalils.github.io/refs/heads/master/img/FlowChart/20250327/截屏2025-03-26-20.15.59.jpg)
  图中以背景颜色的不同可以分为三个模块。
  1. 以**蓝色**为底的这部分是 `Gin` 框架增强的内容。
  2. 以**红色**为底的这部分也是从属于 `Gin` 框架的内容，为了支持 `Gin` 框架使用的数据结构。
