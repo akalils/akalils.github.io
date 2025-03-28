@@ -13,7 +13,6 @@ tags:
 本文核心思路参考了 **小徐先生** 的博客文章，在此表示感谢：  
 - **作者**：小徐先生  
 - **原文标题**：[解析 Gin 框架底层原理](https://mp.weixin.qq.com/s?__biz=MzkxMjQzMjA0OQ==&mid=2247484076&idx=1&sn=9492d326c820625700345a881b58a849)
-  
 ## 1 `Gin` 与 `HTTP`
 
 ### 1.1 `Gin` 与 `net/http` 的关系
@@ -23,7 +22,7 @@ tags:
 2. **上下文层**：通过 `gin.Context` 封装请求 / 响应操作，替代原生的 `http.ResponseWriter` 和 `*http.Request`。
 3. **中间件层**：通过 `HandlersChain` 实现**洋葱模型**，而原生需手动链式调用。
 两者的交互边界如下图：
- ![](../img/FlowChart/20250327/截屏2025-03-26-20.15.59.jpg)
+ ![](https://github.com/akalils/akalils.github.io/blob/be059fc0ccc0161dac8d1012a49ee986a8a79aa2/img/FlowChart/20250327/%E6%88%AA%E5%B1%8F2025-03-26-20.15.59.png)
  图中以背景颜色的不同可以分为三个模块。
  1. 以**蓝色**为底的这部分是 `Gin` 框架增强的内容。
  2. 以**红色**为底的这部分也是从属于 `Gin` 框架的内容，为了支持 `Gin` 框架使用的数据结构。
@@ -86,6 +85,7 @@ func main () {
 - 路由组 `RouterGroup`：第（2）部分展开
 - `Context` 对象池 `pool`：基于 `sync.Pool` 实现，作为复用 `gin.Context` 实例的缓冲池. `gin.Context` 的内容于本文第 5 章详解
 - 路由树数组 `trees`：共有 9 棵路由树，对应于 9 种 `http` 方法. 路由树基于**压缩前缀树**实现，于本文第 4 章详解.
+
 ```go
 type Engine struct {
 	// 路由组
@@ -186,6 +186,7 @@ func main () {
 3. 构造了 9 棵方法路由树，对应于 9 种 `http` 方法
 4. 创建了 `gin.Context` 的对象池
 路由树相关的内容见本文第 4 章；gin.Context 有关内容见本文第 5 章.
+
 ```go
 func Default() *Engine {
     engine := New()
@@ -247,6 +248,7 @@ func (group *RouterGroup) Use(middleware ...HandlerFunc) IRoutes {
 1. **拼接出待注册方法的完整路径 `absolutePath`**：首先看当前这个路径是从属于哪一个具体的路由组，获取到这个路由组当中的 `basePath` 作为路由组的公共前缀，拼接上自身的一个相对路径最终能够得到一个绝对路径 `absolutePath` 。
 2. **拼接出代注册方法的完整处理函数链 `handlers`**：获取到对应路由组当中所共有的中间件，再拼接上我们此时注册操作所注入的这部分新的 `HandlersChain` ，最终形成一个完整的 `HandlersChain` 。
 3. **以 `absolutePath` 和 `handlers` 组成 kv 对添加到路由树中**：比如说我们当前用的是 `POST` 方法，因此会走到 `POST` 方法所对应的那棵路由的压缩前缀树当中，然后根据 `absolutePath` 去做一个压缩前缀树的一个检索的过程，最终找到对应的节点，如果有的话我们就复用这个节点，如果没有的话我们就新建出一个对应的节点然后把刚刚我们拼接出来的完整的 `HandlersChain` 挂载到对应的节点上。
+
 ```go
 // 以POST请求为例
 func (group *RouterGroup) POST(relativePath string, handlers ...HandlerFunc) IRoutes {
@@ -306,6 +308,7 @@ func (group *RouterGroup) combineHandlers(handlers HandlersChain) HandlersChain 
 - 获取 `http method `对应的 `methodTree`
 - 将 `absolutePath` 和对应的 `handlers` 注册到 `methodTree` 中
 路由注册方法 `root.addRoute` 的信息量比较大，放在本文第 4 章中详细拆解.
+
 ```go
 func (engine *Engine) addRoute(method, path string, handlers HandlersChain) {
     // ...
@@ -469,7 +472,7 @@ func (engine *Engine) handleHTTPRequest(c *Context) {
 - `path` 匹配时不是完全精确匹配，比如末尾 `/` 符号的增减、全匹配符号 `*` 的处理等，`map` 无法胜任。举个例子比如说 `/user/ping` 和 `/user/get` 应该被统一映射到 `/user/*` 这样的路径中，这时就是一个模糊匹配的过程，map 无法胜任，压缩前缀树能更好支持前缀模糊匹配的能力。
 - 路由的数量相对有限，对应数量级下 `map` 的性能优势体现不明显，在小数据量的前提下，`map` 性能甚至要弱于前缀树
 - `path` 串通常存在基于分组分类的公共前缀，适合使用前缀树进行管理，可以节省存储空间
-- 
+
 #### （4）补偿策略
 
 在 `Gin` 路由树中还使用一种补偿策略，在组装路由树时，会将注册路由句柄数量更多的 `child node` 摆放在 `children` 数组更靠前的位置.
@@ -749,6 +752,7 @@ type Context struct {
 - `http` 请求到达时，从 `pool` 中获取 `Context`，倘若池子已空，通过 `pool.New` 方法构造新的 `Context` 补上空缺
 - `http` 请求处理完成后，将 `Context` 放回 `pool` 中，用以后续复用
 **`sync.Pool` 并不是真正意义上的缓存**，将其称为回收站或许更加合适，放入其中的数据在**逻辑意义上都是已经被删除的**，但在物理意义上数据是仍然存在的，这些数据可以存活两轮 GC 的时间，在此期间倘若有被获取的需求，则可以被重新复用.
+  
 ```go
 type Engine struct {
     // context 对象池
@@ -782,6 +786,7 @@ func (engine *Engine) allocateContext(maxParams uint16) *Context {
 - 重置 `Context` 的内容，使其成为一个空白的上下文
 - 调用 `Engine.handleHTTPRequest` 方法处理 `http` 请求
 - 请求处理完成后，将 `Context` 放回池中
+
 ```go
 func (engine *Engine) ServeHTTP(w http.ResponseWriter, req *http.Request) {
     // 从对象池中获取一个 context
