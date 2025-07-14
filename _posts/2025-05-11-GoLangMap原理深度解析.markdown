@@ -143,17 +143,17 @@ fatal("concurrent map writes")
 1. `hash` 的**可重入性**：相同的 `key`，必然产生相同 的 `hash` 值；
 2. `hash` 的**离散性**：只要两个 `key` 不相同，不论其相似度的高低，产生的 `hash` 值会在整个输出域内均匀地离散化；
 
-![[截屏2025-05-11 20.29.25.png]]
+![](https://github.com/akalils/akalils.github.io/blob/master/img/FlowChart/20250511/截屏2025-05-11-20.29.25.jpeg?raw=true)
 
 3. `hash` 的**单向性**：企图通过 `hash` 值反向映射回 `key` 是无迹可寻的.
 
 > 上文我们提到过**压缩映射**，在映射的过程当中我们不要求把原始的输入数据源完整的信息都保留下来，可能中间会存在一部分的信息丢失，在哈希映射的过程中是可以接受的，所以在映射的过程中可能有一部分原始数据就已经丢弃了，最终得到了一个对应的输出。可能这个输出本身的信息是不齐全的，所以还原不出来输入的内容。
 
-![[截屏2025-05-11 20.30.20.png]]
+![](https://github.com/akalils/akalils.github.io/blob/master/img/FlowChart/20250511/截屏2025-05-11-20.30.20.jpeg?raw=true)
 
 4. `hash` 冲突：由于输入域（`key`）无穷大，输出域（`hash` 值）有限，因此必然存在**不同 `key` 映射到相同 `hash` 值**的情况，称之为 `hash` 冲突.
 
-![[截屏2025-05-11 20.31.15.png]]
+![](https://github.com/akalils/akalils.github.io/blob/master/img/FlowChart/20250511/截屏2025-05-11-20.31.15.jpeg?raw=true)
 
 ### 2.2 桶数组
 
@@ -161,13 +161,13 @@ fatal("concurrent map writes")
 1. 每个桶固定可以存放 8 个 `key-value` 对；
 2. 倘若超过 8 个 `key-value` 对打到桶数组的同一个索引当中，此时会通过创建桶链表的方式来化解这一问题.
 
-![[截屏2025-05-11 20.32.50.png]]
+![](https://github.com/akalils/akalils.github.io/blob/master/img/FlowChart/20250511/截屏2025-05-11-20.32.50.jpeg?raw=true)
 
 > 假设现在有长度为4的桶数组，接下来我要去插入一个 `{key1: value1}` 数据，我们来梳理一遍具体流程：
 > 1. 首先 `map` 又称为 `hash map`，是重度依赖哈希算法的，所以我们先要把 `key` 值取出来，然后根据哈希算法来取到该 `key` 值的哈希结果`h1`，`h1 = hash(key1)`，这个 `h1` 可能是一个很大的整数，可能是64位或者128位的。那这个 `key-value` 对应该放在哪一个桶当中呢？
 > 2. 我们希望尽可能的每一个桶都能均匀的承载 `key-value` 对数据，不出现所有的数据都聚集在同一个桶上的这种情况，这就是我们上面说过的 `hash` 的**离散性**。在得到 `key1` 的哈希值 `h1` 之后，我们会对桶做取余的操作。假设 `h1 % 4 == 1` ，所以这个 `{key1: value1}` 就属于1号桶。时间复杂度是常数级别的。
 > 
-> ![[截屏2025-05-11 21.20.45.png]]
+> ![](https://github.com/akalils/akalils.github.io/blob/master/img/FlowChart/20250511/截屏2025-05-11-21.20.45.jpeg?raw=true)
 
 > 当我们在进行查询操作的时候跟上面一样。
 > 1. 首先通过 `key1` 去取到对应的哈希值 `h1`，只要我们输入的数据源是相同的并且使用的哈希映射的函数也是相同的，那我们得到的结果 `h1` 就一定是相同的。
@@ -183,7 +183,7 @@ fatal("concurrent map writes")
 
 拉链法中，将命中同一个桶的元素通过链表的形式进行链接，共享这个桶空间，因此很便于动态扩展.
 
-![[截屏2025-05-11 20.37.29.png]]
+![](https://github.com/akalils/akalils.github.io/blob/master/img/FlowChart/20250511/截屏2025-05-11-20.37.29.jpeg?raw=true)
 
 （2）开放寻址法
 
@@ -193,7 +193,7 @@ fatal("concurrent map writes")
 
 > 在查询的时候也是一样，比如对于的 `key` 映射到这个桶 `index=1`，然后我会先去 `index=1` 的桶的位置去对应数据的情况，发现里面存储的 `key-value` 对的 `key` 和此时我在查询的时候使用的 `key` 是不一样的，那我就会根据索引策略，从 `index=1` 出发，去看 `index=2` 桶中的 `key-value` 对对应的 `key` 是否是我查询使用的 `key`，如果不是的话再去看 `index=3`，以此类推知道找到结果为止。
 
-![[截屏2025-05-11 20.38.35.png]]
+![](https://github.com/akalils/akalils.github.io/blob/master/img/FlowChart/20250511/截屏2025-05-11-20.38.35.jpeg?raw=true)
 
 对标拉链还有开放寻址法，两者的优劣对比：
 
@@ -210,7 +210,7 @@ fatal("concurrent map writes")
 4. 倘若桶的 8 个位置都已被占满，则基于桶的溢出桶指针，找到下一个桶，重复第（3）步；
 5. 倘若遍历到链表尾部，仍未找到空位，则基于拉链法，**在桶链表尾部续接新桶**，并插入 `key-value` 对
 
-![[截屏2025-05-11 20.39.46.png]]
+![](https://github.com/akalils/akalils.github.io/blob/master/img/FlowChart/20250511/截屏2025-05-11-20.39.46.jpeg?raw=true)
 
 ### 2.4 扩容优化性能
 
@@ -233,14 +233,14 @@ fatal("concurrent map writes")
 
 > 渐进扩容会同时存在一个老桶数组和新桶数组，两个桶数组并行的情况，此时新写入的数据通通都通过新的桶数组来承载，包括后续一系列的写操作，我们会去先看一眼新桶数组中有没有满足对应的要求如果满足的话我们会优先用新的桶数组，如果没有的话再去用老桶数组兜底。
 
-![[截屏2025-05-11 20.41.39.png]]
+![](https://github.com/akalils/akalils.github.io/blob/master/img/FlowChart/20250511/截屏2025-05-11-20.41.39.jpeg?raw=true)
 
 > 首先上图中有一个老桶数组，长度是4，每个桶都挂载了一些节点，翻倍扩容之后桶数组长度是8，那么老桶数组中的数据节点应该放在新桶数组的哪些位置呢？
 > 对于数据的 key ，我们使用的哈希函数是不变的，在得到了哈希结果之后进行模运算的桶数组的长度发生了变化，要么该数据还在原本的索引位置，要么就在原本的桶索引的基础之上加上一倍老桶数组的长度的索引位置，并且应该在老的位置，还在新的位置。（一个写操作迁移一个桶一个写操作迁移一个桶，愚公移山说是）
 ## 3 数据结构
 ### 3.1 hmap
 
-![[截屏2025-05-12 17.52.22.png]]
+![](https://github.com/akalils/akalils.github.io/blob/master/img/FlowChart/20250511/截屏2025-05-12-17.52.22.jpeg?raw=true)
 
 ```go
 type hmap struct {
@@ -258,13 +258,12 @@ type hmap struct {
 
 ### 3.2 mapextra
 
-![[截屏2025-05-12 18.03.32.png]]
+![](https://github.com/akalils/akalils.github.io/blob/master/img/FlowChart/20250511/截屏2025-05-12-18.03.32.jpeg?raw=true)
 
 ```go
 type mapextra struct {
     overflow    *[]*bmap
     oldoverflow *[]*bmap
-
 
     nextOverflow *bmap
 }
@@ -280,7 +279,7 @@ type mapextra struct {
 
 ### 3.3 bmap
 
-![[截屏2025-05-12 18.04.05.png]]
+![](https://github.com/akalils/akalils.github.io/blob/master/img/FlowChart/20250511/截屏2025-05-12-18.04.05.jpeg?raw=true)
 
 ```go
 const bucketCnt = 8
@@ -308,11 +307,11 @@ type bmap struct {
 
 ## 4 构造方法
 
-![[截屏2025-05-12 19.46.21.png]]
+![](https://github.com/akalils/akalils.github.io/blob/master/img/FlowChart/20250511/截屏2025-05-12-19.46.21.jpeg?raw=true)
 
 ## 5 读流程
 
-![[截屏2025-05-12 19.49.43.png]]
+![](https://github.com/akalils/akalils.github.io/blob/master/img/FlowChart/20250511/截屏2025-05-12-19.49.43.jpeg?raw=true)
 
 ### 5.1 读流程梳理
 
@@ -386,7 +385,7 @@ func evacuated(b *bmap) bool {
 
 ## 6 写流程
 
-![[截屏2025-05-12 20.09.24.png]]
+![](https://github.com/akalils/akalils.github.io/blob/master/img/FlowChart/20250511/截屏2025-05-12-20.09.24.jpeg?raw=true)
 
 ### 6.1 写流程梳理
 
@@ -403,7 +402,7 @@ map 写流程主要分为以下几步：
 
 ## 7 删流程
 
-![[截屏2025-05-12 21.24.05.png]]
+![](https://github.com/akalils/akalils.github.io/blob/master/img/FlowChart/20250511/截屏2025-05-12-21.24.05.jpeg?raw=true)
 
 ### 7.1 删除 kv 对流程梳理
 
@@ -422,13 +421,13 @@ map 删除 kv 对流程主要分为以下几步：
 
 ### 8.1 遍历流程梳理
 
-![[截屏2025-05-12 21.35.57.png]]
+![](https://github.com/akalils/akalils.github.io/blob/master/img/FlowChart/20250511/截屏2025-05-12-21.35.57.jpeg?raw=true)
 
 `map` 的遍历流程首先会走进 `runtime/map.go` 的 `mapiterinit()` 方法当中，初始化用于遍历的迭代器 `hiter`；接着会调用 `runtime/map.go` 的 `mapiternext()` 方法开启遍历流程.
 
 > 首先会生成一个随机数，这个随机数决定了两个东西：决定了遍历的起点，从哪个桶开始；决定了是从哪一个 kv 对的凹槽开始。假设是从3号桶节点开始遍历，遍历玩3号桶之后再去遍历4号桶，遍历到末尾之后重新回到头部，从0开始遍历到2号桶节点。
 > 
-> ![[截屏2025-05-12 21.52.32.png]]
+> ![](https://github.com/akalils/akalils.github.io/blob/master/img/FlowChart/20250511/截屏2025-05-12-21.52.32.jpeg?raw=true)
 >
 > 那从上面就能看出，从哪个桶开始遍历是不固定的，从哪个凹槽开始也是不固定的，最终体现出来的整体的遍历顺序也是不固定的。
 
@@ -438,7 +437,7 @@ map 删除 kv 对流程主要分为以下几步：
 
 ### 9.1 扩容类型
 
-![[截屏2025-05-12 21.58.38.png]]
+![](https://github.com/akalils/akalils.github.io/blob/master/img/FlowChart/20250511/截屏2025-05-12-21.58.38.jpeg?raw=true)
 
 map 的扩容类型分为两类，一类叫做**增量扩容**，一类叫做**等量扩容**。在2.4讲的比较清楚
 
@@ -469,3 +468,7 @@ func mapassign(t *maptype, h *hmap, key unsafe.Pointer) unsafe.Pointer {
 }
 ```
 
+## 参考资料
+本文核心思路参考了 **小徐先生** 的博客文章，在此表示感谢：  
+- **作者**：小徐先生  
+- **原文标题**：[Golang map 实现原理](https://mp.weixin.qq.com/s/PT1zpv3bvJiIJweN3mvX7g)
