@@ -40,7 +40,7 @@ tags:
 
 ### 1.2 标记清扫
 
-![](https://github.com/akalils/akalils.github.io/blob/46308be14ee938a9455a5166a2ec1d3ddc5eb80e/img/FlowChart/20250713/%E6%88%AA%E5%B1%8F2025-05-29-21.48.08.png)
+![](https://raw.githubusercontent.com/akalils/akalils.github.io/refs/heads/master/img/FlowChart/20250713/截屏2025-05-29-21.48.08.png)
 
 标记清扫（Mark-Sweep）算法，分为两步走：
 
