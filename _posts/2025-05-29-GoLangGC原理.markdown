@@ -53,7 +53,7 @@ tags:
 
 ### 1.3 标记压缩
 
-![](img/FlowChart/20250529/截屏2025-05-29-21.48.25.jpeg)
+![](https://github.com/akalils/akalils.github.io/blob/master/img/FlowChart/20250529/截屏2025-05-29-21.48.25.jpeg?raw=true)
 
 标记压缩（Mark-Compact）算法，是在标记清扫算法的基础上做了升级，在第二步”清扫“的同时还会对存活对象进行**压缩整合**，使得整体空间更为紧凑，从而**解决内存碎片问题**.
 
